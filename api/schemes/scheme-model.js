@@ -1,4 +1,13 @@
-function find() { // EXERCISE A
+// const { insert } = require('../../data/db-config');
+const db = require('../../data/db-config');
+const { get } = require('./scheme-router');
+
+const find= () => {
+  return db("schemes")
+  // return db('schemes as sc')
+  // .leftJoin('step_id', 'step_number','instructions', 'sc.scheme_name', '=', 'scheme_id', 'number_of_steps' )
+  // .count('sc.step_number'), {as: 'number_of_steps'}
+} // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
     What happens if we change from a LEFT join to an INNER join?
@@ -15,9 +24,15 @@ function find() { // EXERCISE A
     2A- When you have a grasp on the query go ahead and build it in Knex.
     Return from this function the resulting dataset.
   */
-}
 
-function findById(scheme_id) { // EXERCISE B
+
+const findById = (id) => { 
+  return db ('schemes as sc')
+  .leftJoin('steps', 'sc.scheme_id', 'steps.scheme_id')
+  .where('steps.scheme_id', id).first()
+  .orderBy('steps.step_number')
+  
+  // EXERCISE B
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -85,7 +100,13 @@ function findById(scheme_id) { // EXERCISE B
   */
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+const findSteps = (scheme_id) => { 
+  return db('steps')
+  .select('schemes.scheme_name', 'step_number', 'instructions')
+  .join('schemes', 'steps.scheme_id', 'schemes.scheme_id')
+  .where('schemes.scheme_id', scheme_id)
+  .orderBy('steps.step_number')
+  // EXERCISE C
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
@@ -108,13 +129,20 @@ function findSteps(scheme_id) { // EXERCISE C
   */
 }
 
-function add(scheme) { // EXERCISE D
+const add = (scheme) => { 
+  return db('schemes')
+  .insert(scheme)
+  // EXERCISE D
   /*
     1D- This function creates a new scheme and resolves to _the newly created scheme_.
   */
 }
 
-function addStep(scheme_id, step) { // EXERCISE E
+const addStep = (step) => {
+  return db('steps')
+  .insert(step, 'id')
+  .then(([id]) => get(id))
+  // EXERCISE E
   /*
     1E- This function adds a step to the scheme with the given `scheme_id`
     and resolves to _all the steps_ belonging to the given `scheme_id`,
